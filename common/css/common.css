@@ -1,8 +1,4 @@
 
-* { 
-	/* add default line-height so different fonts don't affect the rhythm of line-box height */
-	line-height:1.2; /* [sic] unitless multiplier, not EM size */
-}
 ol{ list-style:decimal; }
 ol ol{ list-style:upper-alpha; }
 ol ol ol{ list-style:lower-roman; }
@@ -47,6 +43,7 @@ ol ol ol ol{ list-style:lower-alpha; }
 .role-required-properties ul,
 .role-properties ul,
 .role-inherited ul,
+.role-disallowed ul,
 .role-namefrom ul,
 .state-value ul, .state-related ul,
 .state-applicability ul,
@@ -105,6 +102,9 @@ caption{
 table.role-features th, table.role-features td, table.state-features th, table.state-features td, table.property-features th, table.property-features td, table.value-descriptions th, table.value-descriptions td {
 	min-width:20em;
 }
+table.role-features tbody th, table.state-features tbody th, table.property-features tbody th, table.value-descriptions tbody th {
+    text-align: left !important;
+}
 th+th, td+td{
 	width:auto;
 }
@@ -161,7 +161,6 @@ pre .comment, code .comment, code.comment, .comment .str, .comment .tag{
 	background-color: #9f6;
 }
 */
-.role-reference, .state-reference, .property-reference, .widget-reference, .design-pattern-reference {}
 .termref, a.termref:link {
 	color:#006400;
 	text-decoration:none;
@@ -232,14 +231,11 @@ dl.compact dd {
 	font-weight: bold;
 	text-transform: uppercase;
 }
-.tocnum {}
-.section {}
 .todo {
 	background-color:#f99;
 }
 .issue {
 	background-color:#0c0;
-	text-transform:uppercase;
 }
 abbr.symbol {
 	border-bottom:none;

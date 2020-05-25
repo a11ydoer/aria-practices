@@ -6,14 +6,12 @@
 *
 *   Desc:   Tree widget that implements ARIA Authoring Practices
 *           for a tree being used as a file viewer
-*
-*   Author: Jon Gunderson, Ku Ja Eun and Nicholas Hoyt
 */
 
 /**
  * ARIA Treeview example
  * @function onload
- * @desc  after page has loaded initializ all treeitems based on the role=treeitem
+ * @desc  after page has loaded initialize all treeitems based on the role=treeitem
  */
 
 window.addEventListener('load', function () {
@@ -146,13 +144,20 @@ Tree.prototype.setFocusToPreviousItem = function (currentItem) {
   }
 };
 
+Tree.prototype.setFocusToParentItem = function (currentItem) {
+
+  if (currentItem.groupTreeitem) {
+    this.setFocusToItem(currentItem.groupTreeitem);
+  }
+};
+
 Tree.prototype.setFocusToFirstItem = function () {
-    this.setFocusToItem(this.firstTreeitem);
-  };
+  this.setFocusToItem(this.firstTreeitem);
+};
 
 Tree.prototype.setFocusToLastItem = function () {
-    this.setFocusToItem(this.lastTreeitem);
-  };
+  this.setFocusToItem(this.lastTreeitem);
+};
 
 Tree.prototype.expandTreeitem = function (currentItem) {
 
@@ -220,7 +225,9 @@ Tree.prototype.updateVisibleTreeitems = function () {
 };
 
 Tree.prototype.setFocusByFirstCharacter = function (currentItem, char) {
-  var start, index, char = char.toLowerCase();
+  var start, index;
+
+  char = char.toLowerCase();
 
   // Get start index for search based on position of currentItem
   start = this.treeitems.indexOf(currentItem) + 1;

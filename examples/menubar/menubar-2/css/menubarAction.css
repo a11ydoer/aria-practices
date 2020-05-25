@@ -1,9 +1,11 @@
 ul[role="menubar"] {
-  margin: 10px;
-  padding: 10px;
+  margin: 0;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding: 0.25em;
   font-size: 110%;
   list-style: none;
-  background-color: #EEEEEE;
+  background-color: #eee;
 }
 
 ul[role="menubar"] li {
@@ -17,6 +19,11 @@ ul[role="menubar"] > li {
   position: relative;
 }
 
+ul[role="menubar"] > li > [role="menuitem"]::after {
+  content: url('../images/down-arrow-brown.png');
+  padding-left: 0.25em;
+}
+
 ul[role="menubar"] ul[role="menu"] {
   display: none;
   position: absolute;
@@ -24,34 +31,33 @@ ul[role="menubar"] ul[role="menu"] {
   padding: 0;
 }
 
-
 ul[role="menubar"] ul[role="group"] {
   margin: 0;
   padding: 0;
-}  
+}
 
 ul[role="menubar"] li[aria-disabled="true"] {
-  color: #666666;
+  color: #666;
   text-decoration: line-through;
-}  
+}
 
 ul[role="menubar"] [role="menuitem"],
 ul[role="menubar"] [role="menuitemcheckbox"],
-ul[role="menubar"] [role="menuitemradio"], 
+ul[role="menubar"] [role="menuitemradio"],
 ul[role="menubar"] [role="separator"] {
   padding: 0.25em;
-  background-color: #EEEEEE;
-  border: 2px solid #EEEEEE;
+  background-color: #eee;
+  border: 2px solid #eee;
   color: black;
 }
 
 ul[role="menubar"] ul li[role="menuitem"],
 ul[role="menubar"] ul li[role="menuitemcheckbox"],
-ul[role="menubar"] ul li[role="menuitemradio"], 
+ul[role="menubar"] ul li[role="menuitemradio"],
 ul[role="menubar"] ul li[role="separator"] {
   padding-left: 1.5em;
-}  
-
+  width: 8em;
+}
 
 ul[role="menubar"] [role="separator"] {
   padding-top: 0.15em;
@@ -61,44 +67,41 @@ ul[role="menubar"] [role="separator"] {
 }
 
 ul[role="menubar"] [role="menuitem"]:focus,
-ul[role="menubar"] [role="menuitem"] span:hover,
-ul[role="menubar"] [role="menu"] [role="menuitem"]:hover,
-ul[role="menubar"] [role="menu"] [role="menuitemcheckbox"]:focus,
-ul[role="menubar"] [role="menu"] [role="menuitemcheckbox"]:hover,
-ul[role="menubar"] [role="menu"] [role="menuitemradio"]:focus,
-ul[role="menubar"] [role="menu"] [role="menuitemradio"]:hover,
-ul[role="menubar"] [role="menu"] [role="separator"]:focus,
-ul[role="menubar"] [role="menu"] [role="separator"]:hover {
+ul[role="menubar"] [role="menuitem"][aria-expanded="true"] {
   background-color: black;
   color: white;
+  border: 2px solid black;
+  outline: none;
+}
+
+ul[role="menubar"]:not(.focus) [role="menuitem"]:hover {
+  background-color: #444;
+  color: white;
+}
+
+ul[role="menubar"] [role="menu"] [role="menuitem"]:focus,
+ul[role="menubar"] [role="menu"] [role="menuitemcheckbox"]:focus,
+ul[role="menubar"] [role="menu"] [role="menuitemradio"]:focus {
+  background-color: black;
+  color: white;
+  outline: none;
 }
 
 ul[role="menubar"] [role="menuitemcheckbox"][aria-checked='true'],
 ul[role="menubar"] [role="menuitemradio"][aria-checked='true'] {
-  background-image: url('../images/checkmark.png');
-  background-repeat: no-repeat;
-  background-position: 0.1em 0.2em;
+  padding-left: 0.5em;
+  padding-right: 1.25em;
 }
 
-
-ul[role="menubar"] li[aria-checked='true']:hover,
-ul[role="menubar"] li[aria-checked='true']:focus {
-  background-image: url('../images/checkmark-inverse.png');
-  background-repeat: no-repeat;
-  background-position: 0.1em 0.2em;
+ul[role="menubar"] [role="menuitemcheckbox"][aria-checked='true']::before {
+  content: url('../images/check-brown.png');
+  padding-right: 0.3em;
 }
 
-
-ul[role="menubar"] ul[role="menuitem"] > span:after {
-/*  content: url('../images/pull-down-menu-icon.png'); */
-  content: " \25bc";
-  font-size: 80%;
-  color: gray;
+ul[role="menubar"] [role="menuitemradio"][aria-checked='true']::before {
+  content: url('../images/dot-brown.png');
+  padding-right: 0.3em;
 }
-
-
-
-
 
 /*
 * Text area styles
@@ -106,14 +109,17 @@ ul[role="menubar"] ul[role="menuitem"] > span:after {
 .italic {
   font-style: italic;
 }
+
 .bold {
   font-weight: bold;
 }
+
 .underline {
   text-decoration: underline;
 }
+
 #textarea1 {
-  padding: .5em;
+  padding: 0.5em;
   border: 1px solid black;
   height: 400px;
   width: 70%;

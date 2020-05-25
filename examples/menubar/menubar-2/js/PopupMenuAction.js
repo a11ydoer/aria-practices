@@ -5,8 +5,6 @@
 *   File:   PopupMenuAction.js
 *
 *   Desc:   Popup menu widget that implements ARIA Authoring Practices
-*
-*   Author: Jon Gunderson and Ku Ja Eun
 */
 
 /*
@@ -28,16 +26,13 @@
 *       The controller object is expected to have the following properties:
 *       1. domNode: The controller object's DOM element node, needed for
 *          retrieving positioning information.
-*       2. hasHover: boolean that indicates whether the controller object's
-*          domNode has responded to a mouseover event with no subsequent
-*          mouseout event having occurred.
 */
-var PopupMenuAction = function (domNode, controllerObj) {
+var PopupMenuAction = function (domNode, controllerObj, actionManager) {
   var elementChildren,
-      msgPrefix = 'PopupMenu constructor argument domNode ';
+    msgPrefix = 'PopupMenu constructor argument domNode ';
 
   // Check whether domNode is a DOM element
-  if (!domNode instanceof Element) {
+  if (!(domNode instanceof Element)) {
     throw new TypeError(msgPrefix + 'is not a DOM Element.');
   }
 
@@ -46,35 +41,22 @@ var PopupMenuAction = function (domNode, controllerObj) {
     throw new Error(msgPrefix + 'has no element children.');
   }
 
-  // Check whether domNode descendant elements have A elements
-  var childElement = domNode.firstElementChild;
-  while (childElement) {
-    var menuitem = childElement.firstElementChild;
-    if (menuitem && menuitem === 'A') {
-      throw new Error(msgPrefix + 'has descendant elements that are not A elements.');
-    }
-    childElement = childElement.nextElementSibling;
-  }
-
   this.domNode = domNode;
   this.controller = controllerObj;
+  this.actionManager = actionManager;
 
   this.menuitems = []; // see PopupMenu init method
   this.firstChars = []; // see PopupMenu init method
 
   this.firstItem = null; // see PopupMenu init method
   this.lastItem = null; // see PopupMenu init method
-
-  this.hasFocus = false; // see MenuItem handleFocus, handleBlur
-  this.hasHover = false; // see PopupMenu handleMouseover, handleMouseout
 };
 
 /*
 *   @method PopupMenuAction.prototype.init
 *
 *   @desc
-*       Add domNode event listeners for mouseover and mouseout. Traverse
-*       domNode children to configure each menuitem and populate menuitems
+*       Traverse domNode children to configure each menuitem and populate menuitems
 *       array. Initialize firstItem and lastItem properties.
 */
 PopupMenuAction.prototype.init = function () {
@@ -90,9 +72,6 @@ PopupMenuAction.prototype.init = function () {
     this.domNode.setAttribute('aria-label', label);
   }
 
-  this.domNode.addEventListener('mouseover', this.handleMouseover.bind(this));
-  this.domNode.addEventListener('mouseout', this.handleMouseout.bind(this));
-
   // Traverse the element children of domNode: configure each with
   // menuitem role behavior and store reference in menuitems array.
   menuElements = this.domNode.getElementsByTagName('LI');
@@ -101,7 +80,7 @@ PopupMenuAction.prototype.init = function () {
 
     menuElement = menuElements[i];
 
-    if (!menuElement.firstElementChild && menuElement.getAttribute('role') != 'separator') {
+    if (!menuElement.firstElementChild && menuElement.getAttribute('role') !== 'separator') {
       menuItem = new MenuItem(menuElement, this);
       menuItem.init();
       this.menuitems.push(menuItem);
@@ -119,15 +98,44 @@ PopupMenuAction.prototype.init = function () {
   }
 };
 
-/* EVENT HANDLERS */
+PopupMenuAction.prototype.updateMenuStates = function () {
 
-PopupMenuAction.prototype.handleMouseover = function (event) {
-  this.hasHover = true;
-};
+  var item = this.domNode.querySelector('[data-option="font-larger"]');
+  if (item) {
+    if (this.actionManager.isMaxFontSize()) {
+      item.setAttribute('aria-disabled', 'true');
+    }
+    else {
+      item.setAttribute('aria-disabled', 'false');
+    }
+  }
 
-PopupMenuAction.prototype.handleMouseout = function (event) {
-  this.hasHover = false;
-  setTimeout(this.close.bind(this, false), 300);
+  item = this.domNode.querySelector('[data-option="font-smaller"]');
+  if (item) {
+    if (this.actionManager.isMinFontSize()) {
+      item.setAttribute('aria-disabled', 'true');
+    }
+    else {
+      item.setAttribute('aria-disabled', 'false');
+    }
+  }
+
+  // Update the radio buttons for font, in case they were updated using the larger
+  // smaller font menu items
+
+  var rbs = this.domNode.querySelectorAll('[data-option="font-size"] [role=menuitemradio]');
+
+  for (var i = 0; i < rbs.length; i++) {
+    var rb = rbs[i];
+
+    if (this.actionManager.fontSize === rb.textContent.toLowerCase()) {
+      rb.setAttribute('aria-checked', 'true');
+    }
+    else {
+      rb.setAttribute('aria-checked', 'false');
+    }
+  }
+
 };
 
 /* FOCUS MANAGEMENT METHODS */
@@ -145,6 +153,10 @@ PopupMenuAction.prototype.setFocusToController = function (command) {
   else {
     this.controller.domNode.focus();
   }
+};
+
+PopupMenuAction.prototype.setFocusToItem = function (item) {
+  item.domNode.focus();
 };
 
 PopupMenuAction.prototype.setFocusToFirstItem = function () {
@@ -180,7 +192,9 @@ PopupMenuAction.prototype.setFocusToNextItem = function (currentItem) {
 };
 
 PopupMenuAction.prototype.setFocusByFirstCharacter = function (currentItem, char) {
-  var start, index, char = char.toLowerCase();
+  var start, index;
+
+  char = char.toLowerCase();
 
   // Get start index for search based on position of currentItem
   start = this.menuitems.indexOf(currentItem) + 1;
@@ -218,21 +232,22 @@ PopupMenuAction.prototype.open = function () {
   var rect = this.controller.domNode.getBoundingClientRect();
 
   // set CSS properties
-  this.domNode.style.display = 'block';
   this.domNode.style.position = 'absolute';
   this.domNode.style.top = (rect.height - 1) + 'px';
   this.domNode.style.left = '0px';
   this.domNode.style.zIndex = 100;
+  this.domNode.style.display = 'block';
 
   // set aria-expanded attribute
   this.controller.domNode.setAttribute('aria-expanded', 'true');
 };
 
-PopupMenuAction.prototype.close = function (force) {
+PopupMenuAction.prototype.isOpen = function () {
+  return this.controller.domNode.getAttribute('aria-expanded') === 'true';
+};
 
-  if (force || (!this.hasFocus && !this.hasHover && !this.controller.hasHover)) {
-    this.domNode.style.display = 'none';
-    this.domNode.style.zIndex = 0;
-    this.controller.domNode.setAttribute('aria-expanded', 'false');
-  }
+PopupMenuAction.prototype.close = function () {
+  this.domNode.style.display = 'none';
+  this.domNode.style.zIndex = 0;
+  this.controller.domNode.setAttribute('aria-expanded', 'false');
 };
